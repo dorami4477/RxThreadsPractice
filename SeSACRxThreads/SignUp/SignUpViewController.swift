@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class SignUpViewController: UIViewController {
 
@@ -14,21 +16,35 @@ class SignUpViewController: UIViewController {
     let validationButton = UIButton()
     let nextButton = PointButton(title: "다음")
     
+    let disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
         view.backgroundColor = Color.white
         
         configureLayout()
         configure()
         
-        nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
-
+        bind()
     }
     
-    @objc func nextButtonClicked() {
-        navigationController?.pushViewController(PasswordViewController(), animated: true)
+    func bind() {
+        emailTextField.rx.text.orEmpty
+            .map { $0.count > 10 }
+            .bind(with: self) { owner, value in
+                owner.nextButton.isEnabled = value
+                owner.nextButton.backgroundColor = value ? .systemBlue : .gray
+            }
+            .disposed(by: disposeBag)
+        
+        nextButton.rx.tap
+            .bind(with: self) { owner, _ in
+                owner.navigationController?.pushViewController(PasswordViewController(), animated: true)
+            }
+            .disposed(by: disposeBag)
     }
+    
+
 
     func configure() {
         validationButton.setTitle("중복확인", for: .normal)
