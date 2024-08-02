@@ -34,7 +34,7 @@ class PasswordViewController: UIViewController {
         let vaildation = passwordTextField.rx.text.orEmpty.map { $0.count > 7 }
         
         vaildation
-            .bind(to: nextButton.rx.isEnabled, nextButton.rx.isHidden)
+            .bind(to: nextButton.rx.isEnabled, discriptionLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
         vaildation
