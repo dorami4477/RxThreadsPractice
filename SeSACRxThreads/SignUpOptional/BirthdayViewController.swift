@@ -7,6 +7,8 @@
  
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class BirthdayViewController: UIViewController {
     
@@ -66,18 +68,72 @@ class BirthdayViewController: UIViewController {
   
     let nextButton = PointButton(title: "가입하기")
     
+    let disposeBag = DisposeBag()
+    let year = BehaviorSubject(value: "2024년")
+    let month = BehaviorSubject(value: "8월")
+    let day = BehaviorSubject(value: "2일")
+    let age = PublishRelay<Int>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = Color.white
         
         configureLayout()
-        
-        nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
+        bind()
     }
     
-    @objc func nextButtonClicked() {
-        navigationController?.pushViewController(SearchViewController(), animated: true)
+    func bind() {
+        year.bind(to: yearLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        month.bind(to: monthLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        day.bind(to: dayLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        let validation = age.map { $0 >= 170000 }
+        
+        validation
+            .bind(to: infoLabel.rx.isHidden, nextButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
+        validation
+            .bind(with: self) { owner, value in
+                owner.nextButton.backgroundColor = value ? .systemBlue : .gray
+                owner.infoLabel.textColor = value ? .systemBlue : .gray
+            }
+            .disposed(by: disposeBag)
+        
+        birthDayPicker.rx.date
+            .bind(with: self) { owner, date in
+                let date = Calendar.current.dateComponents([.day, .month, .year], from: date)
+                owner.year.on(.next("\(date.year!)년"))
+                owner.month.on(.next("\(date.month!)월"))
+                owner.day.on(.next("\(date.day!)월"))
+                
+                let month = String(format: "%02d", date.month!)
+                let day = String(format: "%02d", date.day!)
+                let birthdayString =  "\(date.year!)\(month)\(day)"
+                
+                let myFormatter = DateFormatter()
+                myFormatter.dateFormat = "yyyyMMdd"
+                let today = myFormatter.string(from: Date())
+                let ageInt = Int(today)! - Int(birthdayString)!
+                print(ageInt)
+                owner.age.accept(ageInt)
+            }
+            .disposed(by: disposeBag)
+        
+
+        
+        nextButton.rx.tap
+            .bind(with: self) { owner, _ in
+                owner.showAlert(title: "완료", buttonMSG: "완료")
+            }
+            .disposed(by: disposeBag)
+        
     }
 
     
@@ -111,6 +167,16 @@ class BirthdayViewController: UIViewController {
             make.top.equalTo(birthDayPicker.snp.bottom).offset(30)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
+    }
+    
+    func showAlert(title:String, buttonMSG:String){
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        
+        let confirm = UIAlertAction(title: buttonMSG, style: .default)
+
+        alert.addAction(confirm)
+        
+        present(alert, animated: true)
     }
 
 }

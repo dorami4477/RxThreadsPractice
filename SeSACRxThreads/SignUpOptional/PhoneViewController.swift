@@ -58,6 +58,7 @@ class PhoneViewController: UIViewController {
         
         phoneText.map { $0.count >= 10 && Int($0) != nil }
             .bind(with: self) { owner, value in
+                owner.nextButton.isEnabled = value
                 if value{
                     owner.discription.onNext("")
                 }
