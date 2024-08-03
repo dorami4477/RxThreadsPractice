@@ -10,7 +10,6 @@ import UIKit
 class EditShoppingListViewController: UIViewController {
     var data:ShoppingList = ShoppingList(title: ""){
         didSet{
-            print(data.title)
             listTextField.text = data.title
         }
     }

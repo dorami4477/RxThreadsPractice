@@ -89,7 +89,6 @@ class ShoppingListViewController: UIViewController {
                     guard let self = self else { return }
                     if let index = self.data.firstIndex(where: { $0.id == updatedValue.id }) {
                         self.data[index] = updatedValue
-                        print(data)
                         self.list.onNext(data)
                     }
                 }
@@ -97,6 +96,15 @@ class ShoppingListViewController: UIViewController {
                 owner.navigationController?.pushViewController(editVC, animated: true)
             }
             .disposed(by: disposeBag)
+        
+        tableView.rx.itemDeleted
+            .bind(with: self) { owner, indexPath in
+                owner.data.remove(at: indexPath.row)
+                owner.list.onNext(owner.data)
+            }
+            .disposed(by: disposeBag)
+        
+        
     }
     
     func configureView() {
