@@ -12,7 +12,7 @@ import RxCocoa
 struct ShoppingList {
     let id:UUID
     var check:BehaviorRelay<Bool>
-    let title:String
+    var title:String
     var favorite:BehaviorRelay<Bool>
     
     init(title: String) {

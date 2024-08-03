@@ -79,6 +79,24 @@ class ShoppingListViewController: UIViewController {
                 owener.list.onNext(owener.data)
             })
             .disposed(by: disposeBag)
+        
+        tableView.rx.modelSelected(ShoppingList.self)
+            .bind(with: self) { owner, value in
+                let editVC = EditShoppingListViewController()
+                editVC.data = value
+                
+                editVC.editItem = { [weak self] updatedValue in
+                    guard let self = self else { return }
+                    if let index = self.data.firstIndex(where: { $0.id == updatedValue.id }) {
+                        self.data[index] = updatedValue
+                        print(data)
+                        self.list.onNext(data)
+                    }
+                }
+                
+                owner.navigationController?.pushViewController(editVC, animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
     func configureView() {
