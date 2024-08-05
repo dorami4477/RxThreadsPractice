@@ -15,7 +15,7 @@ class SignUpViewController: UIViewController {
     let emailTextField = SignTextField(placeholderText: "이메일을 입력해주세요")
     let validationButton = UIButton()
     let nextButton = PointButton(title: "다음")
-    
+    let viewModel = SignUpViewModel()
     let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
@@ -29,15 +29,17 @@ class SignUpViewController: UIViewController {
     }
     
     func bind() {
-        emailTextField.rx.text.orEmpty
-            .map { $0.count > 10 }
+        let input = SignUpViewModel.Input(emailText: emailTextField.rx.text, tap: nextButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.vaild
             .bind(with: self) { owner, value in
                 owner.nextButton.isEnabled = value
                 owner.nextButton.backgroundColor = value ? .systemBlue : .gray
             }
             .disposed(by: disposeBag)
         
-        nextButton.rx.tap
+        output.tap
             .bind(with: self) { owner, _ in
                 owner.navigationController?.pushViewController(PasswordViewController(), animated: true)
             }

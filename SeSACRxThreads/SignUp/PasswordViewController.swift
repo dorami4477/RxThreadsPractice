@@ -19,6 +19,8 @@ class PasswordViewController: UIViewController {
     let vaildText = Observable.just("8자 이상입력해주세요.")
     let disposeBag = DisposeBag()
     
+    let viewModel = PasswordViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Color.white
@@ -27,23 +29,24 @@ class PasswordViewController: UIViewController {
     }
     
     func bind() {
-        vaildText
+        let input = PasswordViewModel.Input(text: passwordTextField.rx.text, tap: nextButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.vaildText
             .bind(to: discriptionLabel.rx.text)
             .disposed(by: disposeBag)
         
-        let vaildation = passwordTextField.rx.text.orEmpty.map { $0.count > 7 }
-        
-        vaildation
+        output.vaild
             .bind(to: nextButton.rx.isEnabled, discriptionLabel.rx.isHidden)
             .disposed(by: disposeBag)
         
-        vaildation
+        output.vaild
             .bind(with: self) { owner, value in
                 owner.nextButton.backgroundColor = value ? .systemGreen : .gray
             }
             .disposed(by: disposeBag)
         
-        nextButton.rx.tap
+        output.tap
             .bind(with: self) { owner, _ in
                 owner.navigationController?.pushViewController(PhoneViewController(), animated: true)
             }

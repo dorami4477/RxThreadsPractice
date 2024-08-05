@@ -17,8 +17,8 @@ class PhoneViewController: UIViewController {
     let discriptionLabel = UILabel()
     
     let disposeBag = DisposeBag()
-    let phoneNumber = Observable.just("010")
-    let discription = PublishSubject<String>()
+
+    let viewModel = PhoneViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,43 +30,22 @@ class PhoneViewController: UIViewController {
     }
     
     func bind() {
-        phoneNumber
+        let input = PhoneViewModel.Input(phoneText: phoneTextField.rx.text, tap: nextButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.phoneNumber
             .bind(to: phoneTextField.rx.text)
             .disposed(by: disposeBag)
         
-        discription
+        output.discription
             .bind(to: discriptionLabel.rx.text)
             .disposed(by: disposeBag)
-        
-        let phoneText = phoneTextField.rx.text.orEmpty
-        
-        phoneText.map { Int($0) == nil }
-            .bind(with: self) { owner, value in
-                if value{
-                    owner.discription.onNext("숫자만 입력하세요.")
-                }
-            }
+
+        output.vaildation
+            .bind(to: nextButton.rx.isEnabled)
             .disposed(by: disposeBag)
         
-        phoneText.map { $0.count < 10 }
-            .bind(with: self) { owner, value in
-                if value{
-                    owner.discription.onNext("10자리이상 입력하세요.")
-                }
-            }
-            .disposed(by: disposeBag)
-        
-        phoneText.map { $0.count >= 10 && Int($0) != nil }
-            .bind(with: self) { owner, value in
-                owner.nextButton.isEnabled = value
-                if value{
-                    owner.discription.onNext("")
-                }
-            }
-            .disposed(by: disposeBag)
-        
-        
-        nextButton.rx.tap
+        output.tap
             .bind(with: self) { owner, _ in
                 owner.navigationController?.pushViewController(NicknameViewController(), animated: true)
             }

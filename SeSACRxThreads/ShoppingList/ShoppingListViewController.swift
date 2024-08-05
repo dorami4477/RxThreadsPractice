@@ -32,6 +32,10 @@ class ShoppingListViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
+    let viewModel = ShoppingListViewModel()
+    let updateItem = PublishSubject<ShoppingList>()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
@@ -39,7 +43,14 @@ class ShoppingListViewController: UIViewController {
     }
     
     func bind() {
-        list
+        let input = ShoppingListViewModel.Input(tap: addButton.rx.tap,
+                                                text: addListTextField.rx.text,
+                                                modelSeleted: tableView.rx.modelSelected(ShoppingList.self), 
+                                                updateItem: updateItem,
+                                                deleteItem: tableView.rx.itemDeleted)
+        let output = viewModel.transform(input: input)
+        
+        output.list
             .bind(to: tableView.rx.items(cellIdentifier: ShoppingListTableViewCell.identifier, cellType: ShoppingListTableViewCell.self)){ row, element, cell in
 
                 cell.titleLabel.text = element.title
@@ -69,41 +80,19 @@ class ShoppingListViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        addButton.rx.tap
-            .withLatestFrom(addListTextField.rx.text.orEmpty) { void, text in
-                return text
-               }
-            .bind(with: self, onNext: { owener, value in
-                let newItem = ShoppingList(title: value)
-                owener.data.insert(newItem, at: 0)
-                owener.list.onNext(owener.data)
-            })
-            .disposed(by: disposeBag)
         
-        tableView.rx.modelSelected(ShoppingList.self)
+        output.modelSeleted
             .bind(with: self) { owner, value in
                 let editVC = EditShoppingListViewController()
                 editVC.data = value
                 
                 editVC.editItem = { [weak self] updatedValue in
                     guard let self = self else { return }
-                    if let index = self.data.firstIndex(where: { $0.id == updatedValue.id }) {
-                        self.data[index] = updatedValue
-                        self.list.onNext(data)
-                    }
+                    self.updateItem.onNext(updatedValue)
                 }
-                
                 owner.navigationController?.pushViewController(editVC, animated: true)
             }
             .disposed(by: disposeBag)
-        
-        tableView.rx.itemDeleted
-            .bind(with: self) { owner, indexPath in
-                owner.data.remove(at: indexPath.row)
-                owner.list.onNext(owner.data)
-            }
-            .disposed(by: disposeBag)
-        
         
     }
     

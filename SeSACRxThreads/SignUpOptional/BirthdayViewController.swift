@@ -69,10 +69,10 @@ class BirthdayViewController: UIViewController {
     let nextButton = PointButton(title: "가입하기")
     
     let disposeBag = DisposeBag()
-    let year = BehaviorSubject(value: "2024년")
-    let month = BehaviorSubject(value: "8월")
-    let day = BehaviorSubject(value: "2일")
+
     let age = PublishRelay<Int>()
+    
+    let viewModel = BirthdayViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -84,51 +84,30 @@ class BirthdayViewController: UIViewController {
     }
     
     func bind() {
-        year.bind(to: yearLabel.rx.text)
+        let input = BirthdayViewModel.Input(age: age, date: birthDayPicker.rx.date, tap: nextButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.year.bind(to: yearLabel.rx.text)
             .disposed(by: disposeBag)
         
-        month.bind(to: monthLabel.rx.text)
+        output.month.bind(to: monthLabel.rx.text)
             .disposed(by: disposeBag)
         
-        day.bind(to: dayLabel.rx.text)
+        output.day.bind(to: dayLabel.rx.text)
             .disposed(by: disposeBag)
         
-        let validation = age.map { $0 >= 170000 }
-        
-        validation
+        output.validation
             .bind(to: infoLabel.rx.isHidden, nextButton.rx.isEnabled)
             .disposed(by: disposeBag)
         
-        validation
+        output.validation
             .bind(with: self) { owner, value in
                 owner.nextButton.backgroundColor = value ? .systemBlue : .gray
                 owner.infoLabel.textColor = value ? .systemBlue : .gray
             }
             .disposed(by: disposeBag)
         
-        birthDayPicker.rx.date
-            .bind(with: self) { owner, date in
-                let date = Calendar.current.dateComponents([.day, .month, .year], from: date)
-                owner.year.on(.next("\(date.year!)년"))
-                owner.month.on(.next("\(date.month!)월"))
-                owner.day.on(.next("\(date.day!)월"))
-                
-                let month = String(format: "%02d", date.month!)
-                let day = String(format: "%02d", date.day!)
-                let birthdayString =  "\(date.year!)\(month)\(day)"
-                
-                let myFormatter = DateFormatter()
-                myFormatter.dateFormat = "yyyyMMdd"
-                let today = myFormatter.string(from: Date())
-                let ageInt = Int(today)! - Int(birthdayString)!
-                print(ageInt)
-                owner.age.accept(ageInt)
-            }
-            .disposed(by: disposeBag)
-        
-
-        
-        nextButton.rx.tap
+        output.tap
             .bind(with: self) { owner, _ in
                 owner.showAlert(title: "완료", buttonMSG: "완료")
             }
