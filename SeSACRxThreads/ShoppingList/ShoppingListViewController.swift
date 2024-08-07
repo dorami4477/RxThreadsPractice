@@ -28,6 +28,9 @@ class ShoppingListViewController: UIViewController {
         ShoppingList(title: "사이다 구메"),
         ShoppingList(title: "양말")
     ]
+    
+    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
+    
     lazy var list = BehaviorSubject(value: data)
     
     let disposeBag = DisposeBag()
@@ -47,7 +50,8 @@ class ShoppingListViewController: UIViewController {
                                                 text: addListTextField.rx.text,
                                                 modelSeleted: tableView.rx.modelSelected(ShoppingList.self), 
                                                 updateItem: updateItem,
-                                                deleteItem: tableView.rx.itemDeleted)
+                                                deleteItem: tableView.rx.itemDeleted, 
+                                                recentItemSelected: collectionView.rx.modelSelected(String.self))
         let output = viewModel.transform(input: input)
         
         output.list
@@ -94,6 +98,11 @@ class ShoppingListViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
+        output.suggestedItem
+            .bind(to: collectionView.rx.items(cellIdentifier: ShoppingCollectionViewCell.identifier, cellType: ShoppingCollectionViewCell.self)){ item, element, cell in
+                cell.label.text = element
+            }
+            .disposed(by: disposeBag)
     }
     
     func configureView() {
@@ -101,6 +110,9 @@ class ShoppingListViewController: UIViewController {
         view.addSubview(addListTextField)
         view.addSubview(addButton)
         view.addSubview(tableView)
+        view.addSubview(collectionView)
+        
+        collectionView.backgroundColor = .systemMint
         
         addListTextField.snp.makeConstraints { make in
             make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
@@ -110,16 +122,29 @@ class ShoppingListViewController: UIViewController {
             make.top.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
             make.height.equalTo(30)
         }
-        tableView.snp.makeConstraints { make in
+        collectionView.snp.makeConstraints { make in
             make.top.equalTo(addListTextField.snp.bottom).offset(20)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.height.equalTo(50)
+        }
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(collectionView.snp.bottom)
             make.bottom.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
         }
+
         
         addListTextField.backgroundColor = .lightGray
         addButton.backgroundColor = .gray
+        collectionView.register(ShoppingCollectionViewCell.self, forCellWithReuseIdentifier: "ShoppingCollectionViewCell")
         tableView.register(ShoppingListTableViewCell.self, forCellReuseIdentifier: "ShoppingListTableViewCell")
     }
 
 
+    static func layout() -> UICollectionViewLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.itemSize = CGSize(width: 80, height: 50)
+        layout.scrollDirection = .horizontal
+        return layout
+    }
 
 }

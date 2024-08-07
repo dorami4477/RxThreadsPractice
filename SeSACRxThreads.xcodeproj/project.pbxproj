@@ -35,6 +35,7 @@
 		4848D2C72C633CAA00A56022 /* MovieTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4848D2C62C633CAA00A56022 /* MovieTableViewCell.swift */; };
 		4848D2C92C633CB700A56022 /* MovieViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4848D2C82C633CB700A56022 /* MovieViewController.swift */; };
 		4848D2CB2C633CCB00A56022 /* MovieViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4848D2CA2C633CCB00A56022 /* MovieViewModel.swift */; };
+		4848D2CD2C63549000A56022 /* ShoppingCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4848D2CC2C63549000A56022 /* ShoppingCollectionViewCell.swift */; };
 		48E7E0532C5D1EB200DBBBB0 /* ShoppingListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E7E0522C5D1EB200DBBBB0 /* ShoppingListViewController.swift */; };
 		48E7E0552C5D1ED300DBBBB0 /* ShoppingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E7E0542C5D1ED300DBBBB0 /* ShoppingList.swift */; };
 		48E7E0572C5DB4B000DBBBB0 /* ShoppingListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E7E0562C5DB4B000DBBBB0 /* ShoppingListTableViewCell.swift */; };
@@ -95,6 +96,7 @@
 		4848D2C62C633CAA00A56022 /* MovieTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTableViewCell.swift; sourceTree = "<group>"; };
 		4848D2C82C633CB700A56022 /* MovieViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieViewController.swift; sourceTree = "<group>"; };
 		4848D2CA2C633CCB00A56022 /* MovieViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieViewModel.swift; sourceTree = "<group>"; };
+		4848D2CC2C63549000A56022 /* ShoppingCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingCollectionViewCell.swift; sourceTree = "<group>"; };
 		48E7E0522C5D1EB200DBBBB0 /* ShoppingListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListViewController.swift; sourceTree = "<group>"; };
 		48E7E0542C5D1ED300DBBBB0 /* ShoppingList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingList.swift; sourceTree = "<group>"; };
 		48E7E0562C5DB4B000DBBBB0 /* ShoppingListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListTableViewCell.swift; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				48E7E0542C5D1ED300DBBBB0 /* ShoppingList.swift */,
 				48E7E0562C5DB4B000DBBBB0 /* ShoppingListTableViewCell.swift */,
 				48E7E0582C5DF9CC00DBBBB0 /* EditShoppingListViewController.swift */,
+				4848D2CC2C63549000A56022 /* ShoppingCollectionViewCell.swift */,
 			);
 			path = ShoppingList;
 			sourceTree = "<group>";
@@ -437,6 +440,7 @@
 				48E7E06D2C60957800DBBBB0 /* SignUpViewModel.swift in Sources */,
 				04F6DBFE2C5B0C0300667F4D /* SearchViewController.swift in Sources */,
 				04F6DC002C5B0C2200667F4D /* SearchTableViewCell.swift in Sources */,
+				4848D2CD2C63549000A56022 /* ShoppingCollectionViewCell.swift in Sources */,
 				041280732AEFAD4B00972552 /* NicknameViewController.swift in Sources */,
 				4848D2C72C633CAA00A56022 /* MovieTableViewCell.swift in Sources */,
 				0412806A2AEFA91E00972552 /* SignUpViewController.swift in Sources */,

@@ -12,6 +12,12 @@ import RxCocoa
 final class ShoppingListViewModel {
     
     let disposeBag = DisposeBag()
+    var data = [
+        ShoppingList(title: "그립톡 구매하기"),
+        ShoppingList(title: "사이다 구메"),
+        ShoppingList(title: "양말")
+    ]
+    var suggestedItem = Observable.just(["아이템1", "아이템2", "아이템3", "아이템4", "아이템5", "아이템6"])
     
     struct Input {
         let tap: ControlEvent<Void>
@@ -19,50 +25,55 @@ final class ShoppingListViewModel {
         let modelSeleted: ControlEvent<ShoppingList>
         let updateItem: PublishSubject<ShoppingList>
         let deleteItem:ControlEvent<IndexPath>
+        let recentItemSelected: ControlEvent<String>
     }
     
     struct Output {
         let tap: ControlEvent<Void>
         let list: BehaviorSubject<[ShoppingList]>
         let modelSeleted: ControlEvent<ShoppingList>
+        let suggestedItem: Observable<[String]>
     }
     
     func transform(input: Input) -> Output {
-        var data = [
-            ShoppingList(title: "그립톡 구매하기"),
-            ShoppingList(title: "사이다 구메"),
-            ShoppingList(title: "양말")
-        ]
-        lazy var list = BehaviorSubject(value: data)
+        let list = BehaviorSubject(value: data)
         
         input.tap
             .withLatestFrom(input.text.orEmpty) { void, text in
                 return text
                }
-            .bind(onNext: { value in
+            .bind(with: self, onNext: { owner, value in
                 let newItem = ShoppingList(title: value)
-                data.insert(newItem, at: 0)
-                list.onNext(data)
+                owner.data.insert(newItem, at: 0)
+                list.onNext(owner.data)
             })
             .disposed(by: disposeBag)
         
         input.updateItem
-            .bind(onNext: { updatedItem in
-                if let index = data.firstIndex(where: { $0.id == updatedItem.id }) {
-                    data[index] = updatedItem
-                    list.onNext(data)
+            .bind(with: self, onNext: { owner, updatedItem in
+                if let index = owner.data.firstIndex(where: { $0.id == updatedItem.id }) {
+                    owner.data[index] = updatedItem
+                    list.onNext(owner.data)
                 }
             })
             .disposed(by: disposeBag)
         
         
         input.deleteItem
-            .bind(onNext: { indexPath in
-                data.remove(at: indexPath.row)
-                list.onNext(data)
+            .bind(with: self, onNext: { owner, indexPath in
+                owner.data.remove(at: indexPath.row)
+                list.onNext(owner.data)
             })
             .disposed(by: disposeBag)
         
-        return Output(tap: input.tap, list: list, modelSeleted: input.modelSeleted)
+        input.recentItemSelected
+            .subscribe(with: self) { owner, value in
+                let newItem = ShoppingList(title: value)
+                owner.data.insert(newItem, at: 0)
+                list.onNext(owner.data)
+            }
+           .disposed(by: disposeBag)
+        
+        return Output(tap: input.tap, list: list, modelSeleted: input.modelSeleted, suggestedItem: suggestedItem)
     }
 }
