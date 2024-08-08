@@ -27,12 +27,12 @@ class MovieViewController: UIViewController {
     
     func bind() {
         let recentText = PublishSubject<String>()
-        let input = MovieViewModel.Input(recentText: recentText)
+        let input = MovieViewModel.Input(recentText: recentText, searchButtonTap: searchBar.rx.searchButtonClicked, searchText: searchBar.rx.text.orEmpty)
         let output = viewModel.transform(input: input)
         
         output.movieList
             .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.identifier, cellType: MovieTableViewCell.self)){ row, element, cell in
-                cell.label.text = element
+                cell.label.text = element.movieNm
             }
             .disposed(by: disposeBag)
 
