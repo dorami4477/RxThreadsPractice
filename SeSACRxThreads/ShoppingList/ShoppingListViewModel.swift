@@ -9,7 +9,13 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class ShoppingListViewModel {
+protocol BaseViewModel {
+    associatedtype Input
+    associatedtype Output
+    func transform(input: Input) -> Output
+}
+
+final class ShoppingListViewModel: BaseViewModel {
     
     let disposeBag = DisposeBag()
     var data = [
